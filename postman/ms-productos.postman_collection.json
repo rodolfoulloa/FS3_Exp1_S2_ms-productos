@@ -1,0 +1,1125 @@
+{
+  "info": {
+    "name": "ms-productos - Tienda en Línea (FS3 Exp1 S2)",
+    "description": "Pruebas de ms-productos (puerto 8082). Requiere ms-usuarios corriendo en el puerto 8081: la carpeta Preparación inicia sesión con ADMIN, VENDEDOR y CLIENTE y guarda sus IDs para el header X-Usuario-Id. Ejecutar en orden con Run collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Preparación: login en ms-usuarios",
+      "item": [
+        {
+          "name": "Login ADMIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{urlUsuarios}}/auth/login",
+              "host": [
+                "{{urlUsuarios}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"admin\",\n  \"password\": \"Admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Rol ADMIN\", () => pm.expect(j.usuario.rol).to.eql(\"ADMIN\"));",
+                  "pm.collectionVariables.set(\"adminId\", j.usuario.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login VENDEDOR",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{urlUsuarios}}/auth/login",
+              "host": [
+                "{{urlUsuarios}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"vendedor@tienda.cl\",\n  \"password\": \"Vende123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Rol VENDEDOR\", () => pm.expect(j.usuario.rol).to.eql(\"VENDEDOR\"));",
+                  "pm.collectionVariables.set(\"vendedorId\", j.usuario.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login CLIENTE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{urlUsuarios}}/auth/login",
+              "host": [
+                "{{urlUsuarios}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"cperez\",\n  \"password\": \"Cliente123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Rol CLIENTE\", () => pm.expect(j.usuario.rol).to.eql(\"CLIENTE\"));",
+                  "pm.collectionVariables.set(\"clienteId\", j.usuario.id);",
+                  "pm.collectionVariables.set(\"rolClienteId\", j.usuario.rolId);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ms-productos",
+      "item": [
+        {
+          "name": "Listar categorías",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{urlProductos}}/categorias",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Al menos 5 categorías\", () => pm.expect(j.length).to.be.at.least(5));",
+                  "pm.collectionVariables.set(\"categoriaId\", j[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resumen de inventario por categoría",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{urlProductos}}/categorias/resumen",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "categorias",
+                "resumen"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Productos de una categoría",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{urlProductos}}/categorias/{{categoriaId}}/productos",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "categorias",
+                "{{categoriaId}}",
+                "productos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear categoría (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{adminId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/categorias",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Monitores\",\n  \"descripcion\": \"Monitores y pantallas\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"nuevaCategoriaId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear categoría como VENDEDOR (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{vendedorId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/categorias",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Impresoras\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar categoría (ADMIN)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{adminId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/categorias/{{nuevaCategoriaId}}",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "categorias",
+                "{{nuevaCategoriaId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Monitores\",\n  \"descripcion\": \"Monitores, pantallas y soportes\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar productos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{urlProductos}}/productos",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Al menos 5 productos\", () => pm.expect(pm.response.json().length).to.be.at.least(5));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Productos activos de una categoría",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{urlProductos}}/productos?categoriaId={{categoriaId}}&activo=true",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos"
+              ],
+              "query": [
+                {
+                  "key": "categoriaId",
+                  "value": "{{categoriaId}}"
+                },
+                {
+                  "key": "activo",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar productos por texto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{urlProductos}}/productos/buscar?q=samsung",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos",
+                "buscar"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "samsung"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Encuentra resultados\", () => pm.expect(pm.response.json().length).to.be.at.least(1));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Productos por rango de precio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{urlProductos}}/productos/precio?min=50000&max=300000",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos",
+                "precio"
+              ],
+              "query": [
+                {
+                  "key": "min",
+                  "value": "50000"
+                },
+                {
+                  "key": "max",
+                  "value": "300000"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Precios dentro del rango\", () => pm.response.json().forEach(p => pm.expect(p.precio).to.be.within(50000, 300000)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Productos con stock bajo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{urlProductos}}/productos/stock-bajo?umbral=5",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos",
+                "stock-bajo"
+              ],
+              "query": [
+                {
+                  "key": "umbral",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Stock <= 5\", () => pm.response.json().forEach(p => pm.expect(p.stock).to.be.at.most(5)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear producto (VENDEDOR)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{vendedorId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/productos",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"MON-LG-001\",\n  \"nombre\": \"Monitor LG UltraGear 27\\\"\",\n  \"descripcion\": \"27 pulgadas, 165 Hz, IPS\",\n  \"precio\": 249990,\n  \"stock\": 10,\n  \"categoriaId\": {{nuevaCategoriaId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"nuevoProductoId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear producto como CLIENTE (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{clienteId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/productos",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"MON-SAM-002\",\n  \"nombre\": \"Monitor Samsung\",\n  \"precio\": 199990,\n  \"stock\": 5,\n  \"categoriaId\": {{nuevaCategoriaId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear producto sin header X-Usuario-Id (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/productos",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"MON-SAM-002\",\n  \"nombre\": \"Monitor Samsung\",\n  \"precio\": 199990,\n  \"stock\": 5,\n  \"categoriaId\": {{nuevaCategoriaId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear producto con SKU duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{adminId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/productos",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"MON-LG-001\",\n  \"nombre\": \"Otro monitor\",\n  \"precio\": 199990,\n  \"stock\": 5,\n  \"categoriaId\": {{nuevaCategoriaId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener producto por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{urlProductos}}/productos/{{nuevoProductoId}}",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos",
+                "{{nuevoProductoId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Modificar producto (VENDEDOR)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{vendedorId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/productos/{{nuevoProductoId}}",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos",
+                "{{nuevoProductoId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"MON-LG-001\",\n  \"nombre\": \"Monitor LG UltraGear 27\\\"\",\n  \"descripcion\": \"27 pulgadas, 165 Hz, IPS - Oferta\",\n  \"precio\": 229990,\n  \"stock\": 10,\n  \"categoriaId\": {{nuevaCategoriaId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Precio actualizado\", () => pm.expect(pm.response.json().precio).to.eql(229990));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descontar stock",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{vendedorId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/productos/{{nuevoProductoId}}/stock?cantidad=-3",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos",
+                "{{nuevoProductoId}}",
+                "stock"
+              ],
+              "query": [
+                {
+                  "key": "cantidad",
+                  "value": "-3"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Stock = 7\", () => pm.expect(pm.response.json().stock).to.eql(7));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descontar más stock del disponible (400)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{vendedorId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/productos/{{nuevoProductoId}}/stock?cantidad=-1000",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos",
+                "{{nuevoProductoId}}",
+                "stock"
+              ],
+              "query": [
+                {
+                  "key": "cantidad",
+                  "value": "-1000"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Desactivar producto",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{vendedorId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/productos/{{nuevoProductoId}}/estado?activo=false",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos",
+                "{{nuevoProductoId}}",
+                "estado"
+              ],
+              "query": [
+                {
+                  "key": "activo",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Inactivo\", () => pm.expect(pm.response.json().activo).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar producto como VENDEDOR (403)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{vendedorId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/productos/{{nuevoProductoId}}",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos",
+                "{{nuevoProductoId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar categoría con productos (409)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{adminId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/categorias/{{nuevaCategoriaId}}",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "categorias",
+                "{{nuevaCategoriaId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar producto (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{adminId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/productos/{{nuevoProductoId}}",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos",
+                "{{nuevoProductoId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener producto eliminado (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{urlProductos}}/productos/{{nuevoProductoId}}",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "productos",
+                "{{nuevoProductoId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar categoría (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{adminId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{urlProductos}}/categorias/{{nuevaCategoriaId}}",
+              "host": [
+                "{{urlProductos}}"
+              ],
+              "path": [
+                "categorias",
+                "{{nuevaCategoriaId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "urlUsuarios",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "urlProductos",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "adminId",
+      "value": ""
+    },
+    {
+      "key": "vendedorId",
+      "value": ""
+    },
+    {
+      "key": "clienteId",
+      "value": ""
+    },
+    {
+      "key": "rolClienteId",
+      "value": ""
+    },
+    {
+      "key": "categoriaId",
+      "value": ""
+    },
+    {
+      "key": "nuevaCategoriaId",
+      "value": ""
+    },
+    {
+      "key": "nuevoProductoId",
+      "value": ""
+    }
+  ]
+}
