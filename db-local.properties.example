@@ -1,0 +1,6 @@
+# Copiar este archivo como "db-local.properties" en la raíz del proyecto y completar la clave.
+# db-local.properties está en .gitignore: NUNCA se sube a GitHub.
+
+spring.datasource.url=jdbc:oracle:thin:@fs3db_tp?TNS_ADMIN=C:/proyectos/FS3_Exp1_S2_ms-productos/wallet
+spring.datasource.username=ADMIN
+spring.datasource.password=tu_clave

@@ -1,0 +1,22 @@
+target/
+.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+
+# IDE
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# Credenciales y wallet de Oracle (NUNCA subir al repositorio)
+wallet/
+Wallet_*/
+*.zip
+.env
+db-local.properties
+application-local.properties
+
+# Logs
+*.log
